@@ -1,7 +1,7 @@
 {
-  "name": "libass-wasm",
-  "version": "4.1.0",
-  "description": "libass Subtitle Renderer and Parser library for browsers",
+  "name": "@nomercy-entertainment/libass-wasm",
+  "version": "4.1.0-nme.0",
+  "description": "NoMercy fork of libass-wasm — libass Subtitle Renderer and Parser library for browsers. Maintained for in-house WebAssembly builds backing the NoMercy player ecosystem.",
   "main": "dist/js/subtitles-octopus.js",
   "files": [
     "dist/js/subtitles*",
@@ -9,22 +9,31 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "./run-docker-build.sh"
+    "build:docker": "./run-docker-build.sh",
+    "build:buildah": "./run-buildah-build.sh"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/libass/JavascriptSubtitlesOctopus.git"
+    "url": "git+https://github.com/NoMercy-Entertainment/JavascriptSubtitlesOctopus.git"
   },
   "keywords": [
     "libass",
     "subtitle",
     "wasm",
-    "emscripten"
+    "emscripten",
+    "nomercy"
   ],
-  "author": "SubtitlesOctopus contributors",
+  "author": {
+    "name": "NoMercy Entertainment",
+    "email": "info@nomercy.tv",
+    "url": "https://nomercy.tv"
+  },
+  "contributors": [
+    "SubtitlesOctopus contributors (upstream)"
+  ],
   "license": "LGPL-2.1-or-later AND (FTL OR GPL-2.0-or-later) AND MIT AND MIT-Modern-Variant AND ISC AND NTP AND Zlib AND BSL-1.0",
   "bugs": {
-    "url": "https://github.com/libass/JavascriptSubtitlesOctopus/issues"
+    "url": "https://github.com/NoMercy-Entertainment/JavascriptSubtitlesOctopus/issues"
   },
-  "homepage": "https://libass.github.io/JavascriptSubtitlesOctopus/"
+  "homepage": "https://github.com/NoMercy-Entertainment/JavascriptSubtitlesOctopus#readme"
 }
