@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, beast-unit]
     steps:
     - name: Cancel previous runs
       uses: styfle/cancel-workflow-action@0.12.1
