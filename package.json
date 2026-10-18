@@ -8,7 +8,7 @@
     "dist/js/COPYRIGHT"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test test/dispose.test.js",
     "build:docker": "./run-docker-build.sh",
     "build:buildah": "./run-buildah-build.sh"
   },
