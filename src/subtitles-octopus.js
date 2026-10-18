@@ -594,7 +594,9 @@ var SubtitlesOctopus = function (options) {
             document.removeEventListener('msfullscreenchange', self.resizeWithTimeout, false);
             window.removeEventListener('resize', self.resizeWithTimeout, false);
 
-            self.video.parentNode.removeChild(self.canvasParent);
+            if (self.canvasParent && self.canvasParent.parentNode) {
+                self.canvasParent.parentNode.removeChild(self.canvasParent);
+            }
 
             self.video = null;
         }
