@@ -20,10 +20,10 @@ We maintain our own build for three reasons:
 
 ```sh
 # Docker (preferred — reproducible across hosts)
-npm run build:docker
+yarn build:docker
 
 # Buildah / rootless (Linux)
-npm run build:buildah
+yarn build:buildah
 ```
 
 Both invoke the upstream build script, which compiles libass + deps via Emscripten and emits `dist/js/subtitles-octopus*.{js,wasm}` plus an aggregated `COPYRIGHT`. The build chain is unchanged from upstream — we don't fork the toolchain.

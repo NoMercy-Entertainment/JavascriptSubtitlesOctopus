@@ -1,6 +1,7 @@
 {
   "name": "@nomercy-entertainment/libass-wasm",
   "version": "4.1.0-nme.0",
+  "packageManager": "yarn@4.18.1",
   "description": "NoMercy fork of libass-wasm — libass Subtitle Renderer and Parser library for browsers. Maintained for in-house WebAssembly builds backing the NoMercy player ecosystem.",
   "main": "dist/js/subtitles-octopus.js",
   "files": [
