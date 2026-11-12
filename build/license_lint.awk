@@ -29,14 +29,14 @@ FNR == 1 && FILENAME == ARGV[ARGC-1] {
 
 !fulltext && /^License: / {
     for(i=2; i<=NF; ++i) {
-        l = canonicalise_name($2)
+        l = canonicalise_name($i)
         ++licenses[l]
     }
 }
 
 fulltext && /^License: / {
     for(i=2; i<=NF; ++i) {
-        l = canonicalise_name($2)
+        l = canonicalise_name($i)
         if(!(l in licenses)) {
             print "Superfluous full text for '"l"'!" | "cat>&2"
             ++errors
