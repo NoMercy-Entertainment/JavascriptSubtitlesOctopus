@@ -400,7 +400,7 @@ public:
     }
 
     void removeStyle(int sid) {
-        ass_free_event(track, sid);
+        ass_free_style(track, sid);
     }
 
     void removeAllEvents() {

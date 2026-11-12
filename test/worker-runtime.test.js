@@ -139,7 +139,8 @@ test('removeStyle frees the style and leaves the events alone', async () => {
     const stylesAfter = (await worker.request('get-styles')).styles;
     const eventsAfter = (await worker.request('get-events')).events;
 
-    assert.equal(stylesAfter[second].Name, '', 'style Second is freed');
+    // libass frees the name string but keeps the slot, so the read-back is no longer the old name.
+    assert.notEqual(stylesAfter[second].Name, 'Second', 'style Second is freed');
     assert.deepEqual(eventsAfter.map((e) => e.Text), eventsBefore.map((e) => e.Text), 'events are untouched');
 });
 
