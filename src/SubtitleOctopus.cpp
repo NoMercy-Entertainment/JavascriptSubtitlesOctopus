@@ -238,6 +238,9 @@ private:
     RenderBlendResult m_blendResult;
     bool drop_animations;
     int scanned_events; // next unscanned event index
+    bool has_memory_limits;
+    int glyph_limit_mib;
+    int bitmap_limit_mib;
 public:
     ASS_Library* ass_library;
     ASS_Renderer* ass_renderer;
@@ -259,6 +262,9 @@ public:
         canvas_h = 0;
         drop_animations = false;
         scanned_events = 0;
+        has_memory_limits = false;
+        glyph_limit_mib = 0;
+        bitmap_limit_mib = 0;
     }
 
     void setLogLevel(int level) {
@@ -307,6 +313,9 @@ public:
         resizeCanvas(frame_w, frame_h);
 
         reloadFonts();
+        if (has_memory_limits) {
+            setMemoryLimits(glyph_limit_mib, bitmap_limit_mib);
+        }
         m_blend.clear();
     }
 
@@ -408,6 +417,9 @@ public:
     }
 
     void setMemoryLimits(int glyph_limit, int bitmap_cache_limit) {
+        has_memory_limits = true;
+        glyph_limit_mib = glyph_limit;
+        bitmap_limit_mib = bitmap_cache_limit;
         printf("jso: setting total libass memory limits to: glyph=%d MiB, bitmap cache=%d MiB\n",
             glyph_limit, bitmap_cache_limit);
         ass_set_cache_limits(ass_renderer, glyph_limit, bitmap_cache_limit);
