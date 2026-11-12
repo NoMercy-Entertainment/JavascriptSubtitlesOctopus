@@ -56,9 +56,6 @@ $(DIST_DIR)/lib/libbrotlicommon.a: build/lib/brotli/configured
 	cd build/lib/brotli && \
     $(call CONFIGURE_CMAKE) && \
 	$(JSO_MAKE) install
-	# Normalise static lib names
-	cd $(DIST_DIR)/lib/ && \
-	for lib in *-static.a ; do mv "$$lib" "$${lib%-static.a}.a" ; done
 
 
 # Freetype without Harfbuzz
@@ -77,21 +74,30 @@ build/lib/freetype/build_hb/dist_hb/lib/libfreetype.a: $(DIST_DIR)/lib/libbrotli
 		&& \
 		$(JSO_MAKE) install
 
-# Harfbuzz
-build/lib/harfbuzz/configure: lib/harfbuzz $(wildcard $(BASE_DIR)build/patches/harfbuzz/*.patch)
-	$(call PREPARE_SRC_PATCHED,harfbuzz)
-	cd build/lib/harfbuzz && $(RECONF_AUTO)
+# Harfbuzz (meson only since 8.0); LDFLAGS is reset below because meson splits "-s KEY=VAL" and emcc fails its sanity check
+build/lib/harfbuzz/configured: lib/harfbuzz
+	$(call PREPARE_SRC_VPATH,harfbuzz)
+	touch build/lib/harfbuzz/configured
 
-$(DIST_DIR)/lib/libharfbuzz.a: build/lib/freetype/build_hb/dist_hb/lib/libfreetype.a build/lib/harfbuzz/configure
+$(DIST_DIR)/lib/libharfbuzz.a: build/lib/freetype/build_hb/dist_hb/lib/libfreetype.a build/lib/harfbuzz/configured
 	cd build/lib/harfbuzz && \
-	EM_PKG_CONFIG_PATH=$(PKG_CONFIG_PATH):$(BASE_DIR)build/lib/freetype/build_hb/dist_hb/lib/pkgconfig \
-	CFLAGS="-DHB_NO_MT $(CFLAGS)" \
-	CXXFLAGS="-DHB_NO_MT $(CFLAGS)" \
-	$(call CONFIGURE_AUTO) \
-		--with-freetype \
+	LDFLAGS="-O3 -flto" \
+	PKG_CONFIG_PATH=$(PKG_CONFIG_PATH):$(BASE_DIR)build/lib/freetype/build_hb/dist_hb/lib/pkgconfig \
+	meson setup out $(BASE_DIR)lib/harfbuzz \
+		--cross-file $(BASE_DIR)build/meson/wasm.ini \
+		--prefix $(DIST_DIR) \
+		--libdir lib \
+		--buildtype release \
+		-Ddefault_library=static \
+		-Dwerror=false \
+		-Dc_args="-DHB_NO_MT $(CFLAGS)" \
+		-Dcpp_args="-DHB_NO_MT -DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR $(CFLAGS)" \
+		-Dfreetype=enabled \
+		-Dglib=disabled -Dgobject=disabled -Dcairo=disabled \
+		-Dgpu=disabled -Dutilities=disabled -Dtests=disabled -Ddocs=disabled \
+		-Dintrospection=disabled -Dicu=disabled \
 	&& \
-	cd src && \
-	$(JSO_MAKE) install-libLTLIBRARIES install-pkgincludeHEADERS install-pkgconfigDATA
+	meson install -C out
 
 # Freetype with Harfbuzz
 $(DIST_DIR)/lib/libfreetype.a: $(DIST_DIR)/lib/libharfbuzz.a $(DIST_DIR)/lib/libbrotlidec.a
@@ -113,7 +119,12 @@ $(DIST_DIR)/lib/libfontconfig.a: $(DIST_DIR)/lib/libharfbuzz.a $(DIST_DIR)/lib/l
 	$(call CONFIGURE_AUTO) \
 		--disable-docs \
 		--with-default-fonts=/fonts \
+		ac_cv_va_copy=C99 \
 	&& \
+	$(JSO_MAKE) -C fc-case && \
+	$(JSO_MAKE) -C fc-lang && \
+	$(JSO_MAKE) -C fc-const && \
+	$(JSO_MAKE) -C fc-genericfamily && \
 	$(JSO_MAKE) -C src/ install && \
 	$(JSO_MAKE) -C fontconfig/ install && \
 	$(JSO_MAKE) install-pkgconfigDATA
