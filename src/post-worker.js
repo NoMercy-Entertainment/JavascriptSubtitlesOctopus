@@ -95,7 +95,10 @@ self.setTrack = function (content) {
     Module["FS"].writeFile("/sub.ass", content);
 
     // Tell libass to render the new track
-    self.octObj.createTrack("/sub.ass");
+    if (self.octObj.createTrack("/sub.ass") !== 0) {
+        postMessage({target: 'track-error', content: 'The subtitle file could not be parsed.'});
+        return;
+    }
     self.ass_track = self.octObj.track;
     self.ass_renderer = self.octObj.ass_renderer;
     self.ass_library = self.octObj.ass_library;

@@ -353,6 +353,10 @@ var SubtitlesOctopus = function (options) {
                 console.error(data.content);
                 break;
             }
+            case 'track-error': {
+                console.error('Subtitle track error: ' + data.content);
+                break;
+            }
             case 'window': {
                 window[data.method]();
                 break;

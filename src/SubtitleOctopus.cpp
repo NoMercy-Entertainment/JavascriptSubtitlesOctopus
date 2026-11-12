@@ -320,24 +320,43 @@ public:
     }
 
     /* TRACK */
-    void createTrack(char* subfile) {
+    // Returns 0 on success, 1 when libass rejects the input; the current track is kept then.
+    int createTrack(char* subfile) {
+        ASS_Library* probe_lib = ass_library_init();
+        ASS_Track* probe = probe_lib ? ass_read_file(probe_lib, subfile, NULL) : NULL;
+        if (probe) ass_free_track(probe);
+        if (probe_lib) ass_library_done(probe_lib);
+        if (!probe) {
+            fprintf(stderr, "jso: Failed to start a track\n");
+            return 1;
+        }
         reloadLibrary();
         track = ass_read_file(ass_library, subfile, NULL);
         if (!track) {
             fprintf(stderr, "jso: Failed to start a track\n");
-            exit(4);
+            return 1;
         }
         scanAnimations(0);
+        return 0;
     }
 
-    void createTrackMem(char *buf, unsigned long bufsize) {
+    int createTrackMem(char *buf, unsigned long bufsize) {
+        ASS_Library* probe_lib = ass_library_init();
+        ASS_Track* probe = probe_lib ? ass_read_memory(probe_lib, buf, (size_t)bufsize, NULL) : NULL;
+        if (probe) ass_free_track(probe);
+        if (probe_lib) ass_library_done(probe_lib);
+        if (!probe) {
+            fprintf(stderr, "jso: Failed to start a track\n");
+            return 1;
+        }
         reloadLibrary();
         track = ass_read_memory(ass_library, buf, (size_t)bufsize, NULL);
         if (!track) {
             fprintf(stderr, "jso: Failed to start a track\n");
-            exit(4);
+            return 1;
         }
         scanAnimations(0);
+        return 0;
     }
 
     void removeTrack() {

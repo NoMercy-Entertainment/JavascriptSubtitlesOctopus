@@ -89,7 +89,9 @@ Module['onRuntimeInitialized'] = function () {
 
     self.octObj.initLibrary(screen.width, screen.height, "/fonts/.fallback-" + self.fallbackFont.split('/').pop());
     self.octObj.setDropAnimations(self.dropAllAnimations);
-    self.octObj.createTrack("/sub.ass");
+    if (self.octObj.createTrack("/sub.ass") !== 0) {
+        postMessage({target: 'track-error', content: 'The subtitle file could not be parsed.'});
+    }
     self.ass_track = self.octObj.track;
     self.ass_library = self.octObj.ass_library;
     self.ass_renderer = self.octObj.ass_renderer;
