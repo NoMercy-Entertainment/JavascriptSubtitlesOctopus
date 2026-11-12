@@ -9,7 +9,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const dist = path.join(__dirname, '..', 'dist', 'js');
+const dist = process.env.JSO_DIST || path.join(__dirname, '..', 'dist', 'js');
+const assets = process.env.JSO_ASSETS || path.join(__dirname, '..', 'assets');
 
 const ASS = `[Script Info]
 ScriptType: v4.00+
@@ -35,9 +36,12 @@ function startWorker(options = {}) {
     const waiters = [];
     const fontLoads = [];
     const FakeXhr = class {
-        open() {}
+        open(method, url) { this.url = String(url); }
         send() {
-            this.response = new Uint8Array(4).buffer;
+            // The fallback font is the real one, so a render test draws actual glyphs; other fonts stay stubs.
+            this.response = this.url.endsWith('default.woff2')
+                ? new Uint8Array(fs.readFileSync(path.join(assets, 'default.woff2'))).buffer
+                : new Uint8Array(4).buffer;
             this.status = 200;
             setImmediate(() => this.onload && this.onload());
         }
@@ -127,6 +131,13 @@ async function ready(options) {
 function stdout(worker) {
     return worker.sent.filter((m) => m.target === 'stdout').map((m) => m.content);
 }
+
+test('a dialogue line renders with the fallback font when its named font is missing', async () => {
+    const worker = await ready();
+    const result = worker.sandbox.octObj.renderBlend(0.5, 1);
+    assert.ok(result.dest_width > 0 && result.dest_height > 0,
+        `no glyphs drawn at 0.5 s (dest ${result.dest_width}x${result.dest_height}); stdout: ${stdout(worker).join(' | ').slice(0, 300)}`);
+});
 
 test('removeStyle frees the style and leaves the events alone', async () => {
     const worker = await ready();
