@@ -63,7 +63,7 @@ self.writeAvailableFontsToFS = function(content) {
 
     var regex = /\\fn([^\\}]*?)[\\}]/g;
     var matches;
-    while (matches = regex.exec(self.subContent)) {
+    while (matches = regex.exec(content)) {
         self.writeFontToFS(matches[1]);
     }
 };
