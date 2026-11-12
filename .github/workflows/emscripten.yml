@@ -6,13 +6,17 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   build:
     timeout-minutes: 7200
-    runs-on: [self-hosted, Linux, X64, beast-unit]
+    runs-on: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON('["self-hosted","Linux","X64","beast-unit"]') || 'ubuntu-latest' }}
     steps:
     - name: Cancel previous runs
-      uses: styfle/cancel-workflow-action@0.12.1
+      uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # 0.12.1
       with:
           access_token: ${{ github.token }}
           all_but_latest: true
