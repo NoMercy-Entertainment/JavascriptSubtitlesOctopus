@@ -6,6 +6,7 @@
   "main": "dist/js/subtitles-octopus.js",
   "files": [
     "dist/js/subtitles*",
+    "dist/js/default.woff2",
     "dist/js/COPYRIGHT"
   ],
   "scripts": {
