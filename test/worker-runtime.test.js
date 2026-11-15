@@ -29,7 +29,10 @@ Dialogue: 0,0:00:01.00,0:00:06.00,Default,,0,0,0,,Second line
 Dialogue: 0,0:00:02.00,0:00:07.00,Default,,0,0,0,,Third line
 `;
 
-const INLINE_FONT_ASS = ASS.replace('Third line', '{\\fnInlineOnlyFont}Third line');
+// libass rejects a file with no ASS section header.
+const NOT_ASS = 'WEBVTT\n\n00:00.000 --> 00:02.000\nThis is not an ASS file\n';
+
+const INLINE_FONT_ASS =ASS.replace('Third line', '{\\fnInlineOnlyFont}Third line');
 
 function startWorker(options = {}) {
     const sent = [];
@@ -168,6 +171,24 @@ test('a track libass cannot parse reports an error and the worker keeps answerin
     worker.send({ target: 'set-track', content: ASS });
     const after = (await worker.request('get-events')).events;
     assert.equal(after.length, before, 'a good track loads again');
+});
+
+test('a first file libass cannot parse leaves a worker that answers with no events and no image', async () => {
+    const worker = await ready({ subContent: NOT_ASS });
+    await worker.waitFor((m) => m.target === 'track-error');
+
+    const events = await worker.request('get-events');
+    assert.equal(events.events.length, 0, 'no track means no events');
+
+    const blend = worker.sandbox.octObj.renderBlend(0.5, 1);
+    assert.equal(blend.image, 0, 'no track means no blended image');
+    assert.equal(worker.sandbox.octObj.renderImage(0.5, worker.sandbox.changed).ptr, 0, 'no track means no image');
+    assert.equal((await worker.request('get-styles')).styles.length, 0, 'no track means no styles');
+
+    worker.send({ target: 'set-track', content: ASS });
+    const after = (await worker.request('get-events')).events;
+    assert.equal(after.length, 3, 'a good track loads after the bad first file');
+    assert.ok(worker.sandbox.octObj.renderBlend(0.5, 1).dest_width > 0, 'the good track renders');
 });
 
 test('memory limits stay in force after a new track is loaded', async () => {
