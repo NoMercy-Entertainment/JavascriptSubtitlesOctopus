@@ -70,6 +70,14 @@ jobs:
         mkdir -p /tmp/emcc_lto
         docker run --rm --env LC_ALL=C.UTF-8 -v "${PWD}":/code -v "/tmp/emcc_lto:/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/lto" libass/jso:latest
 
+    - name: Set up Node
+      uses: actions/setup-node@v6
+
+    - name: Run Worker Tests
+      run: |
+        corepack enable
+        yarn test
+
     - name: Upload Nightly Build
       uses: actions/upload-artifact@v7.0.1
       if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master'
